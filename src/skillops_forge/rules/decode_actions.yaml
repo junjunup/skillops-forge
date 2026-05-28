@@ -1,0 +1,20 @@
+rules:
+  - id: SEC-013
+    name: Base64 / hex decode action
+    severity: high
+    engine: regex
+    targets: [body, examples, all]
+    # Detect the *action* of decoding (more robust than SEC-008 which targets
+    # high-entropy blobs that attackers can easily split or pad).
+    pattern: '\b(?:base64\s+(?:-d|--decode)|base64\.b64decode\s*\(|atob\s*\(|String\.fromCharCode\s*\(|codecs\.decode\s*\([^)]*[''"]base64[''"]|hex\.decode\s*\(|binascii\.unhexlify\s*\()'
+    message: "Skill decodes base64 / hex / character codes — payload may be hidden."
+    remediation: "If decoding is intentional, document the source and decoded content; otherwise remove."
+
+  - id: SEC-014
+    name: Dynamic code evaluation (eval / exec / Function)
+    severity: high
+    engine: regex
+    targets: [body, examples, all]
+    pattern: '\b(?:eval\s*\(|exec\s*\(|Function\s*\([^)]+\)\s*\(|new\s+Function\s*\(|setTimeout\s*\(\s*[''"][^''"]*[''"]|getattr\s*\([^)]+,\s*[''"]__\w+__[''"])'
+    message: "Skill uses eval/exec/Function with potentially external input."
+    remediation: "Replace dynamic execution with explicit dispatch tables or AST whitelisting."

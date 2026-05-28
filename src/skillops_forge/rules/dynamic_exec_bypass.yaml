@@ -1,0 +1,34 @@
+rules:
+  - id: SEC-018
+    name: Reflective dynamic execution (getattr / __import__ on builtins)
+    severity: high
+    engine: regex
+    targets: [body, examples, all]
+    # Real-world attackers commonly bypass plain `eval(`/`exec(` regexes by
+    # going through reflection: ``getattr(__builtins__, 'exec')(payload)`` or
+    # ``__import__("builtins").exec(payload)``. This rule covers those.
+    # Also catches "x = vars(__builtins__)['eval']" and similar dict accesses.
+    pattern: '(?:getattr\s*\(\s*(?:__builtins__|builtins)\b[^)]*\)|__import__\s*\(\s*[''"]builtins[''"]\s*\)\s*\.\s*(?:eval|exec|compile)|vars\s*\(\s*(?:__builtins__|builtins)\s*\)\s*\[\s*[''"](?:eval|exec|compile)[''"]\s*\])'
+    message: "Reflective access to builtins for dynamic execution — bypass technique."
+    remediation: "Refactor to direct, named function calls; explain why dynamic dispatch is required if it is."
+
+  - id: SEC-019
+    name: String-concatenated eval / exec name
+    severity: high
+    engine: regex
+    targets: [body, examples, all]
+    # Catches common obfuscation that splits the literal name of a dangerous
+    # builtin across string concatenation, e.g. ``'ev' + 'al'``,
+    # ``"ex" + "ec"``, ``'comp' + 'ile'``. The pattern only requires the
+    # split to span the keyword boundary; both ``'ev'+'al'`` and
+    # ``'eva' + 'l'`` are matched. Single-quote, double-quote and mixed
+    # forms are accepted; whitespace around the ``+`` is optional.
+    pattern: '(?ix)
+      [''"](?:e\b|ev\b|eva\b)[''"]\s*\+\s*[''"](?:val\b|al\b|l\b)[''"]
+      |
+      [''"](?:e\b|ex\b|exe\b)[''"]\s*\+\s*[''"](?:xec\b|ec\b|c\b)[''"]
+      |
+      [''"](?:c\b|co\b|com\b|comp\b|compi\b|compil\b)[''"]\s*\+\s*[''"](?:ompile\b|mpile\b|pile\b|ile\b|le\b|e\b)[''"]
+    '
+    message: "Likely string-concatenated obfuscation of an eval/exec/compile name."
+    remediation: "Concat-then-call name obfuscation has no legitimate use in skills. Remove."

@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SkillOps Forge Report — {{ summary.score }}/100</title>
+<style>
+:root {
+  --bg: #0f172a;
+  --card: #ffffff;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+  color: var(--text);
+  line-height: 1.55;
+}
+.container { max-width: 1080px; margin: 0 auto; padding: 32px 24px 64px; }
+header {
+  background: var(--card);
+  border-radius: 18px;
+  padding: 32px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  align-items: center;
+  box-shadow: 0 4px 20px rgba(15,23,42,0.06);
+  border: 1px solid var(--border);
+}
+.score {
+  font-size: 4em;
+  font-weight: 700;
+  line-height: 1;
+  color: {{ score_color }};
+}
+.score small {
+  display: block;
+  font-size: 0.25em;
+  color: var(--muted);
+  font-weight: 500;
+  margin-top: 6px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.pill {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: {{ score_color }};
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.pill.caution {
+  background: #F4C430;
+  color: #1f2937;
+  margin-left: 8px;
+}
+.action {
+  margin-top: 10px;
+  font-size: 0.95em;
+  color: var(--text);
+  background: #fffbeb;
+  border-left: 4px solid #F4C430;
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+.permissions { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.perm-block { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; }
+.perm-block h3 { margin: 0 0 8px; font-size: 0.95em; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.perm-block ul { margin: 0; padding-left: 20px; font-size: 0.92em; }
+.perm-block ul li { margin-bottom: 4px; word-break: break-all; }
+.perm-block .empty { color: var(--muted); font-style: italic; font-size: 0.9em; }
+.meta {
+  margin-left: auto;
+  text-align: right;
+  font-size: 0.9em;
+  color: var(--muted);
+  min-width: 220px;
+}
+.meta code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-top: 24px; }
+.card {
+  background: var(--card);
+  border-radius: 14px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(15,23,42,0.04);
+}
+.card .label { font-size: 0.85em; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.card .value { font-size: 2em; font-weight: 700; color: var(--text); }
+section {
+  background: var(--card);
+  border-radius: 14px;
+  padding: 24px 28px;
+  margin-top: 24px;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(15,23,42,0.04);
+}
+section h2 {
+  margin: 0 0 16px;
+  font-size: 1.25em;
+  font-weight: 700;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.93em;
+}
+th, td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+tbody tr:nth-child(even) { background: #f8fafc; }
+tbody tr:hover { background: #eef2ff; }
+.sev {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.78em;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 0.9em; }
+.success { color: #16a34a; font-weight: 700; }
+.fail { color: #dc2626; font-weight: 700; }
+.checklist { list-style: none; padding: 0; margin: 0; }
+.checklist li { padding: 6px 0; font-size: 0.95em; }
+.checklist li::before { content: "☐ "; color: var(--muted); margin-right: 6px; }
+.checklist li.ok::before { content: "☑ "; color: #16a34a; }
+footer {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 0.85em;
+  color: var(--muted);
+}
+@media (max-width: 720px) {
+  header { flex-direction: column; align-items: flex-start; }
+  .meta { margin-left: 0; text-align: left; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="score">
+      {{ summary.score }}<small>SkillOps score</small>
+    </div>
+    <div>
+      <span class="pill">{{ summary.overall_risk | upper }}</span>
+      {% if show_caution %}<span class="pill caution">⚠️ CAUTION</span>{% endif %}
+      <p style="margin: 12px 0 0; font-size: 1.1em;">
+        {% if summary.is_passed %}<span class="success">✓ Passed</span>{% else %}<span class="fail">✗ Failed</span>{% endif %}
+        — threshold {{ summary.threshold }}
+      </p>
+      <div class="action"><strong>Recommended Action:</strong> {{ recommended_action }}</div>
+    </div>
+    <div class="meta">
+      <div>SkillOps Forge <code>{{ tool_version }}</code></div>
+      <div>{{ generated_at }}</div>
+      <div>Target <code>{{ target_path }}</code></div>
+    </div>
+  </header>
+
+  <div class="cards">
+    <div class="card"><div class="label">Files</div><div class="value">{{ summary.files }}</div></div>
+    <div class="card"><div class="label">Audit findings</div><div class="value">{{ summary.audit_findings }}</div></div>
+    <div class="card"><div class="label">Security findings</div><div class="value">{{ summary.security_findings }}</div></div>
+    <div class="card"><div class="label">Examples run</div><div class="value">{{ summary.examples_run }}</div></div>
+  </div>
+
+  <section>
+    <h2>Permissions</h2>
+    {% if permission_rows.is_empty %}
+    <p class="empty"><em>No file / command / network permissions were detected.</em></p>
+    {% else %}
+    <div class="permissions">
+      <div class="perm-block">
+        <h3>Files (read)</h3>
+        {% if permission_rows.files_read %}
+        <ul>{% for p in permission_rows.files_read %}<li><code>{{ p }}</code></li>{% endfor %}</ul>
+        {% else %}<div class="empty">none</div>{% endif %}
+      </div>
+      <div class="perm-block">
+        <h3>Files (write)</h3>
+        {% if permission_rows.files_write %}
+        <ul>{% for p in permission_rows.files_write %}<li><code>{{ p }}</code></li>{% endfor %}</ul>
+        {% else %}<div class="empty">none</div>{% endif %}
+      </div>
+      <div class="perm-block">
+        <h3>Commands</h3>
+        {% if permission_rows.commands %}
+        <ul>{% for c in permission_rows.commands %}<li><code>{{ c }}</code></li>{% endfor %}</ul>
+        {% else %}<div class="empty">none</div>{% endif %}
+      </div>
+      <div class="perm-block">
+        <h3>Network</h3>
+        {% if permission_rows.network %}
+        <ul>{% for n in permission_rows.network %}<li><code>{{ n }}</code></li>{% endfor %}</ul>
+        {% else %}<div class="empty">none</div>{% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </section>
+
+  <section>
+    <h2>Inventory</h2>
+    <table>
+      <thead><tr><th>Path</th><th>Format</th><th>sha256</th><th>Lines</th><th>Examples</th></tr></thead>
+      <tbody>
+      {% for row in inventory_rows %}
+        <tr>
+          <td><code>{{ row.path }}</code></td>
+          <td>{{ row.format }}</td>
+          <td><code>{{ row.sha }}</code></td>
+          <td>{{ row.lines }}</td>
+          <td>{{ row.examples }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="5"><em>No skill files detected.</em></td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Findings</h2>
+    {% if findings_table %}
+    <table>
+      <thead><tr><th>ID</th><th>Severity</th><th>Kind</th><th>Message</th><th>File:Line</th><th>Remediation</th></tr></thead>
+      <tbody>
+      {% for f in findings_table %}
+        <tr>
+          <td><code>{{ f.id }}</code></td>
+          <td><span class="sev" style="background: {{ f.color }};">{{ f.severity }}</span></td>
+          <td>{{ f.kind }}</td>
+          <td>{{ f.message }}</td>
+          <td><code>{{ f.file }}:{{ f.line }}</code></td>
+          <td>{{ f.remediation }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p>No findings. ✨</p>
+    {% endif %}
+  </section>
+
+  <section>
+    <h2>Examples Dry-Run</h2>
+    {% if examples_rows %}
+    <table>
+      <thead><tr><th>Title</th><th>File</th><th>Result</th><th>Blocked actions</th></tr></thead>
+      <tbody>
+      {% for r in examples_rows %}
+        <tr>
+          <td>{{ r.title }}</td>
+          <td><code>{{ r.file }}</code></td>
+          <td>{% if r.success %}<span class="success">success</span>{% else %}<span class="fail">blocked</span>{% endif %}</td>
+          <td>{{ r.blocked | length }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p>No example blocks were dry-run.</p>
+    {% endif %}
+  </section>
+
+  <section>
+    <h2>Compliance Checklist</h2>
+    <ul class="checklist">
+      <li class="{% if summary.is_passed %}ok{% endif %}">Score ≥ threshold ({{ summary.threshold }})</li>
+      <li class="{% if summary.security_findings == 0 %}ok{% endif %}">Zero security findings</li>
+      <li class="{% if summary.audit_findings == 0 %}ok{% endif %}">Zero audit findings</li>
+      <li class="{% if report.overall_risk.value != 'critical' %}ok{% endif %}">No CRITICAL severity findings</li>
+    </ul>
+  </section>
+
+  <footer>
+    SkillOps Forge is a risk-assistance tool, not an absolute certification.
+  </footer>
+</div>
+</body>
+</html>

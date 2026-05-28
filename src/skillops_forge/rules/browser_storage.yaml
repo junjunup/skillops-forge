@@ -1,0 +1,9 @@
+rules:
+  - id: SEC-016
+    name: Browser cookie / saved-credential access
+    severity: critical
+    engine: regex
+    targets: [body, examples, all]
+    pattern: '(?i)(?:cookies\.sqlite|Login\s+Data|/Library/Application\s+Support/(?:Google/Chrome|Firefox)|AppData/Local/Google/Chrome/User\s+Data|\.mozilla/firefox/[^/]+/cookies\.sqlite|/Default/Cookies\b|/Default/Login\s+Data\b)'
+    message: "Skill accesses browser cookies / saved logins — credential theft pattern."
+    remediation: "Browser-stored credentials are private. If automation requires login, pass credentials explicitly via env vars or vault references."

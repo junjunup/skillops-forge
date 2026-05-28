@@ -1,0 +1,17 @@
+rules:
+  - id: SEC-001
+    name: Remote script piped to shell
+    severity: critical
+    engine: regex
+    targets: [body, examples, all]
+    pattern: '\b(?:curl|wget)\s+[^|;&\n]*?\|\s*(?:sh|bash|zsh|ksh)\b'
+    message: "Remote script piped directly into a shell ('curl | sh' / 'wget | bash')."
+    remediation: "Download the script, verify a sha256 sum, then execute. Or inline the script content."
+  - id: SEC-002
+    name: Download-then-execute pattern
+    severity: high
+    engine: regex
+    targets: [body, examples, all]
+    pattern: '(?:wget\s+-O\s+\S+|curl\s+-o\s+\S+)\s*&&\s*(?:sh|bash|zsh|chmod\s+\+x)'
+    message: "Download-then-execute is equivalent to a piped curl|sh."
+    remediation: "Verify the downloaded file (signature/checksum) before execution; document its origin."

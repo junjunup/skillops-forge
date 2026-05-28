@@ -1,0 +1,17 @@
+rules:
+  - id: SEC-010
+    name: Exfiltration to non-allowlisted domain
+    severity: medium
+    engine: heuristic
+    targets: [body, examples, all]
+    pattern: exfil_unallowed_domain
+    message: "HTTP request to a non-allowlisted external domain combined with curl/wget/requests/fetch."
+    remediation: "Whitelist trusted domains explicitly, or rewrite to use a local resource."
+  - id: SEC-011
+    name: Shell injection via unsanitized variable
+    severity: high
+    engine: regex
+    targets: [body, examples, all]
+    pattern: '(?:echo\s+\$\{?[A-Z_][A-Z0-9_]*\}?[^|\n]*\|\s*(?:sh|bash)|`\$\{?[A-Z_][A-Z0-9_]*\}?`[^\n]*?(?:rm|curl|wget|ssh|scp))'
+    message: "User-controlled variable is concatenated into a shell command."
+    remediation: "Use shlex.quote / argument arrays / strict input allowlists."

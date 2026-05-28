@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+wheels/
+*.egg-info/
+.eggs/
+.installed.cfg
+
+# venv
+.venv/
+.venv-qa/
+venv/
+env/
+
+# Tooling
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.tox/
+
+# Editors
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Project outputs
+reports/
+docs/schema/skillops-result.schema.json
+.qa-tmp/
+
+# Local research artefacts (not for the public repo)
+.competitor-research/
+
+# Local-only development history (private notes, blind audit, brainstorm,
+# previous-version improvement docs). Kept out of the public repo because
+# they reference local paths and internal review process.
+docs/dev-history/
+
+# Cursor / Claude local
+.cursor-local/

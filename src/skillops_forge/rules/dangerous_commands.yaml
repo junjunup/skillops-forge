@@ -1,0 +1,9 @@
+rules:
+  - id: SEC-005
+    name: Destructive shell command
+    severity: critical
+    engine: regex
+    targets: [body, examples, all]
+    pattern: '(?:\brm\s+-rf?\s+(?:/|~|\$HOME)|\bdd\s+if=|\bmkfs\b|:\(\)\s*\{\s*:\s*\|\s*:\s*&\s*\}\s*;:)'
+    message: "Destructive command (rm -rf /, dd, mkfs, fork bomb) appears in skill content."
+    remediation: "Never demonstrate destructive commands in a skill; use mock paths."

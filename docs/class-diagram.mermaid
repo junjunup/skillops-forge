@@ -1,0 +1,147 @@
+classDiagram
+    class Severity {
+        <<enumeration>>
+        CRITICAL
+        HIGH
+        MEDIUM
+        LOW
+        INFO
+    }
+
+    class SkillFormat {
+        <<enumeration>>
+        SKILL_MD
+        CLAUDE_MD
+        CURSOR_RULES
+        UNKNOWN
+    }
+
+    class SkillFile {
+        +Path path
+        +SkillFormat format
+        +dict frontmatter
+        +str body
+        +list~str~ allowed_tools
+        +list~Example~ examples
+        +str sha256
+        +int line_count
+        +section(name) str
+    }
+
+    class Example {
+        +str title
+        +str input
+        +str expected_output
+        +list~str~ commands
+    }
+
+    class SkillInventory {
+        +Path root
+        +list~SkillFile~ files
+        +datetime scanned_at
+        +str tool_version
+        +to_json() str
+        +by_format(fmt) list~SkillFile~
+    }
+
+    class Finding {
+        <<abstract>>
+        +str id
+        +Severity severity
+        +str message
+        +Path file
+        +int line
+        +int column
+        +str remediation
+        +str category
+        +to_dict() dict
+    }
+
+    class AuditFinding {
+        +str rule_kind
+        +str field
+    }
+
+    class SecurityFinding {
+        +str rule_id
+        +str matched_text
+        +str engine
+    }
+
+    class ExampleRun {
+        +str example_title
+        +bool success
+        +list~SecurityFinding~ blocked_actions
+        +str dry_run_log
+    }
+
+    class Rule {
+        +str id
+        +str name
+        +Severity severity
+        +str pattern
+        +str engine
+        +list~str~ targets
+        +str message
+        +str remediation
+        +match(skill) list~SecurityFinding~
+    }
+
+    class SkillReport {
+        +SkillInventory inventory
+        +list~AuditFinding~ audit_findings
+        +list~SecurityFinding~ security_findings
+        +list~ExampleRun~ example_runs
+        +int score
+        +Severity overall_risk
+        +int threshold
+        +bool passed
+        +datetime generated_at
+        +str tool_version
+        +to_json() str
+        +summary() dict
+    }
+
+    class BaseParser {
+        <<abstract>>
+        +tuple suffixes
+        +can_handle(path) bool
+        +parse(path) SkillFile
+    }
+
+    class SkillMdParser
+    class ClaudeMdParser
+    class CursorRulesParser
+
+    class Pipeline {
+        +Path target
+        +int threshold
+        +list~PluginProtocol~ plugins
+        +run() SkillReport
+    }
+
+    class PluginProtocol {
+        <<interface>>
+        +str name
+        +on_inventory(inv)
+        +on_findings(findings)
+        +on_report(report)
+    }
+
+    SkillFile "1" o-- "*" Example
+    SkillInventory "1" o-- "*" SkillFile
+    Finding <|-- AuditFinding
+    Finding <|-- SecurityFinding
+    SkillReport "1" o-- "*" AuditFinding
+    SkillReport "1" o-- "*" SecurityFinding
+    SkillReport "1" o-- "*" ExampleRun
+    SkillReport "1" --> "1" SkillInventory
+    BaseParser <|-- SkillMdParser
+    BaseParser <|-- ClaudeMdParser
+    BaseParser <|-- CursorRulesParser
+    Pipeline ..> BaseParser
+    Pipeline ..> Rule
+    Pipeline ..> PluginProtocol
+    Rule ..> SecurityFinding
+    SkillFile --> SkillFormat
+    Finding --> Severity

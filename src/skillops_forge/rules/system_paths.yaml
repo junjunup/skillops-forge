@@ -1,0 +1,13 @@
+rules:
+  - id: SEC-017
+    name: Writes to system / privileged path
+    severity: high
+    engine: regex
+    targets: [body, examples, all]
+    # Require a write-action token (>, >>, tee, cp, mv, install) followed by a
+    # known system / privileged path (Unix /etc, /usr/bin, /usr/local, /System;
+    # Windows C:\Windows, C:\Program Files). Single backslash is YAML-safe
+    # inside a double-quoted scalar; we use a quoted form to keep it readable.
+    pattern: "(?:>|>>|tee\\s|cp\\s+\\S+|mv\\s+\\S+|install\\s+\\S+)\\s+(?:/etc/|/usr/(?:bin|local)/|C:\\\\Windows\\\\|C:\\\\Program\\s+Files\\\\|/System/)"
+    message: "Skill writes to system / privileged paths."
+    remediation: "Stay inside the workspace. Use ~/.local/, $XDG_CONFIG_HOME, or explicit user-provided paths."

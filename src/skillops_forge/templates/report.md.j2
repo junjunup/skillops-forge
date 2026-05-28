@@ -1,0 +1,84 @@
+# SkillOps Forge Report
+
+**Score**: {{ summary.score }} / 100  ·  **Risk**: `{{ summary.overall_risk | upper }}`  ·  **Threshold**: {{ summary.threshold }}  ·  **Result**: {% if summary.is_passed %}{% if show_caution %}⚠️ PASSED WITH CAUTION{% else %}✅ PASSED{% endif %}{% else %}❌ FAILED{% endif %}
+
+**Recommended Action**: {{ recommended_action }}
+{% if show_caution %}
+> ⚠️ **CAUTION** — score is above threshold but {{ high_finding_count }} HIGH finding(s) were detected. Review before installing.
+{% endif %}
+
+> Generated `{{ generated_at }}` · Tool `skillops-forge {{ tool_version }}` · Target `{{ target_path }}`
+
+---
+
+## Summary
+
+| Metric | Value |
+| --- | --- |
+| Files scanned | {{ summary.files }} |
+| Audit findings | {{ summary.audit_findings }} |
+| Security findings | {{ summary.security_findings }} |
+| Examples dry-run | {{ summary.examples_run }} |
+
+## Permissions
+
+{% if permission_rows.is_empty %}
+_No file / command / network permissions were detected._
+{% else %}
+**Files (read)**:{% if permission_rows.files_read %}
+{% for p in permission_rows.files_read %}- `{{ p }}`
+{% endfor %}{% else %} _none_{% endif %}
+
+**Files (write)**:{% if permission_rows.files_write %}
+{% for p in permission_rows.files_write %}- `{{ p }}`
+{% endfor %}{% else %} _none_{% endif %}
+
+**Commands**:{% if permission_rows.commands %}
+{% for c in permission_rows.commands %}- `{{ c }}`
+{% endfor %}{% else %} _none_{% endif %}
+
+**Network**:{% if permission_rows.network %}
+{% for n in permission_rows.network %}- `{{ n }}`
+{% endfor %}{% else %} _none_{% endif %}
+{% endif %}
+
+## Inventory
+
+| Path | Format | sha256 | Lines | Examples |
+| --- | --- | --- | ---: | ---: |
+{% for row in inventory_rows -%}
+| `{{ row.path }}` | {{ row.format }} | `{{ row.sha }}` | {{ row.lines }} | {{ row.examples }} |
+{% endfor %}
+
+## Findings
+
+{% if findings_table %}
+| ID | Severity | Kind | Message | File:Line | Remediation |
+| --- | --- | --- | --- | --- | --- |
+{% for f in findings_table -%}
+| `{{ f.id }}` | **{{ f.severity | upper }}** | {{ f.kind }} | {{ f.message }} | `{{ f.file }}:{{ f.line }}` | {{ f.remediation }} |
+{% endfor %}
+{% else %}
+No findings. ✨
+{% endif %}
+
+## Examples Dry-Run
+
+{% if examples_rows %}
+| Title | File | Result | Blocked actions |
+| --- | --- | --- | --- |
+{% for r in examples_rows -%}
+| {{ r.title }} | `{{ r.file }}` | {% if r.success %}✅{% else %}❌{% endif %} | {% if r.blocked %}{{ r.blocked | length }}{% else %}0{% endif %} |
+{% endfor %}
+{% else %}
+No example blocks were dry-run.
+{% endif %}
+
+## Compliance Checklist
+
+- [{% if summary.is_passed %}x{% else %} {% endif %}] Score ≥ threshold ({{ summary.threshold }})
+- [{% if summary.security_findings == 0 %}x{% else %} {% endif %}] Zero security findings
+- [{% if summary.audit_findings == 0 %}x{% else %} {% endif %}] Zero audit findings
+- [{% if report.overall_risk.value != 'critical' %}x{% else %} {% endif %}] No CRITICAL severity findings
+
+> **Disclaimer**: SkillOps Forge provides risk-assistance, not absolute certification.

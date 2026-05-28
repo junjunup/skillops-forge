@@ -1,0 +1,12 @@
+# Normalize all text files to LF in the repo. Working tree EOL is left to
+# core.autocrlf, so Windows users still see CRLF locally if their git config
+# says so. This avoids large CRLF/LF diffs between Linux CI and Windows devs.
+* text=auto eol=lf
+
+# Binary safeguards (none today, but ready when we add screenshots / pdfs).
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.zip binary

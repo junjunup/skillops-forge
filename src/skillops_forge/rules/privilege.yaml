@@ -1,0 +1,9 @@
+rules:
+  - id: SEC-006
+    name: Privilege escalation / over-permissive chmod
+    severity: high
+    engine: regex
+    targets: [body, examples, all]
+    pattern: '(?:\bsudo\b|\bchmod\s+-?R?\s*0?7{2,3}\b|\bchown\s+-R\s+root\b)'
+    message: "Privilege escalation or world-writable permissions detected."
+    remediation: "Use least privilege; explain why elevation is required if it is."

@@ -1,0 +1,17 @@
+rules:
+  - id: SEC-003
+    name: Sensitive credential file path
+    severity: critical
+    engine: regex
+    targets: [body, examples, all]
+    pattern: '(?:~/\.ssh/|/\.aws/credentials|/\.config/gcloud|\.netrc|\bid_rsa\b|\bid_ed25519\b)'
+    message: "Skill references a sensitive credential file path."
+    remediation: "Use environment variables or explicit parameters; declare minimum required scope."
+  - id: SEC-004
+    name: Implicit credential env-var read
+    severity: high
+    engine: regex
+    targets: [body, examples, all]
+    pattern: '\b(?:env|printenv|os\.environ(?:\.get)?)\b[^\n]{0,80}?(?:AWS_|AZURE_|GCP_|GOOGLE_|OPENAI_API_KEY|ANTHROPIC_API_KEY|GITHUB_TOKEN)'
+    message: "Skill reads sensitive credentials from environment variables without declaring them."
+    remediation: "Declare required env vars in 'allowed-tools' / docs, or pass as explicit parameters."

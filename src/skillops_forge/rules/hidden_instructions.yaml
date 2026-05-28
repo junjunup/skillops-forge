@@ -1,0 +1,25 @@
+rules:
+  - id: SEC-007
+    name: Hidden zero-width characters
+    severity: high
+    engine: heuristic
+    targets: [body, frontmatter, all]
+    pattern: zero_width
+    message: "Zero-width characters detected — often used to hide prompt-injection payloads."
+    remediation: "Strip non-visible characters; add a CI lint that rejects them."
+  - id: SEC-008
+    name: Suspicious long base64 / high-entropy blob
+    severity: medium
+    engine: heuristic
+    targets: [body, examples, all]
+    pattern: high_entropy_base64
+    message: "Long base64 / high-entropy blob — may hide an executable payload."
+    remediation: "Decode and review manually; if the blob is needed, document its origin."
+  - id: SEC-009
+    name: Prompt injection keyword
+    severity: high
+    engine: keyword
+    targets: [body, frontmatter, all]
+    pattern: '(?i)(ignore (?:all|previous) instructions|disregard.*system prompt|act as (?:the )?developer mode|reveal your system prompt|jailbreak)'
+    message: "Classic prompt-injection trigger phrase detected."
+    remediation: "Remove or annotate as a red-team example; add to your prompt-injection corpus."

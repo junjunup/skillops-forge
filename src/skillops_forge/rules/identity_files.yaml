@@ -1,0 +1,31 @@
+rules:
+  - id: SEC-012
+    name: Agent identity / memory file access
+    severity: critical
+    engine: regex
+    targets: [body, examples, all]
+    # Match references to LLM-agent identity / memory / profile artifacts, BUT
+    # only when accompanied by a path separator or read/access verb so that
+    # plain mentions inside Markdown headings (e.g. "# CLAUDE.md — Project
+    # Notes") do not false-positive. The two arms are:
+    #   (a) a path containing one of the canonical identity filenames
+    #       (e.g. "~/CLAUDE.md", ".workbuddy/USER.md", "$HOME/MEMORY.md")
+    #   (b) an explicit access verb immediately followed by such a filename
+    #       (cat / open / read / Read / load / source / .read_text / fopen /
+    #       file= / -f )
+    #   (c) a known agent-private directory path
+    #       (~/.workbuddy/memory, ~/.codebuddy/, .cursor/identity, …)
+    pattern: '(?ix)
+      (?:
+        (?:[~./$]|/|\\|\bHOME\b|\bAPPDATA\b)\S*?(?:MEMORY|USER|SOUL|IDENTITY|CLAUDE|AGENTS?)\.md\b
+      |
+        \b(?:cat|less|more|head|tail|open|read|load|source|fopen|file\s*=|-f\s+|Read\s*\(|read_text|read_bytes|open\s*\()\s*[''"]?[~./$]?\S*?(?:MEMORY|USER|SOUL|IDENTITY|CLAUDE|AGENTS?)\.md\b
+      |
+        /\.workbuddy/(?:memory|identity|profile)\b
+      |
+        /\.codebuddy/
+      |
+        /\.cursor/identity\b
+      )'
+    message: "Skill references AI agent identity / memory / profile files (likely privacy exfil)."
+    remediation: "Identity files (MEMORY.md, USER.md, ~/.workbuddy/memory) are agent-private; skills must not read them. Use explicit user-supplied parameters instead."

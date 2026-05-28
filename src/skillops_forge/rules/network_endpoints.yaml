@@ -1,0 +1,13 @@
+rules:
+  - id: SEC-015
+    name: Network call to bare IP address
+    severity: high
+    engine: regex
+    targets: [body, examples, all]
+    # Match http(s):// URLs whose host is a literal IPv4 (with optional port).
+    # Loopback / RFC1918 / link-local are not pre-excluded — they are still
+    # noteworthy in a published skill (they signal lab leakage); the
+    # remediation explains how to whitelist if intentional.
+    pattern: 'https?://(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?::\d+)?(?:/|\b)'
+    message: "Network call uses raw IP instead of a domain — bypasses DNS allowlists."
+    remediation: "Use a domain name and add it to the allowlist; explain why a raw IP is necessary (e.g. local lab, no DNS)."

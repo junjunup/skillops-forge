@@ -1,0 +1,42 @@
+name: SkillOps Forge
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  skillops:
+    name: Audit AI skills
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install SkillOps Forge
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+
+      - name: Run skillops scan
+        run: skillops scan tests/fixtures/good --report all --threshold 70
+
+      - name: Upload SkillOps report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: skillops-report
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 14

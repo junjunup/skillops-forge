@@ -1,0 +1,47 @@
+sequenceDiagram
+    autonumber
+    actor User
+    participant CLI as cli.py(typer app)
+    participant Pipe as Pipeline
+    participant Parser as parser.parse_path
+    participant Aud as auditor.run_audit
+    participant Scan as scanner.run_scan
+    participant Run as runner.run_examples
+    participant Score as reporter.scoring
+    participant Rep as reporter.render
+    participant FS as filesystem
+
+    User->>CLI: skillops scan ./my-skill --report all
+    CLI->>CLI: 解析参数 + logging_setup
+    CLI->>Pipe: run_pipeline(target, threshold=70)
+    Pipe->>Parser: parse_path(./my-skill)
+    Parser->>FS: 遍历 *.md / .cursor/rules/*
+    Parser->>Parser: detect_format → 选择 BaseParser
+    Parser-->>Pipe: SkillInventory(files=[SkillFile,...])
+
+    Pipe->>Aud: run_audit(inventory)
+    Aud->>Aud: frontmatter / description / permissions / io / examples
+    Aud-->>Pipe: list[AuditFinding]
+
+    Pipe->>Scan: run_scan(inventory)
+    Scan->>Scan: 加载 rules/*.yaml → list[Rule]
+    loop 对每个 SkillFile × 每条 Rule
+        Scan->>Scan: rule.match(skill) (regex/keyword/heuristic)
+    end
+    Scan-->>Pipe: list[SecurityFinding]
+
+    Pipe->>Run: run_examples(inventory)
+    Run->>Run: dry_run + interceptors（不真实执行）
+    Run-->>Pipe: list[ExampleRun]
+
+    Pipe->>Score: calculate_score(all_findings)
+    Score-->>Pipe: int score, Severity overall_risk
+    Pipe-->>CLI: SkillReport(passed=score>=threshold)
+
+    CLI->>Rep: render(report, fmt="all", out_dir=reports/)
+    Rep->>FS: 写 reports/skillops-report.html
+    Rep->>FS: 写 reports/skillops-report.md
+    Rep->>FS: 写 reports/skillops-result.json
+    Rep-->>CLI: [Path, Path, Path]
+
+    CLI->>User: rich 表格摘要 + 退出码（0 通过 / 1 低于阈值）
