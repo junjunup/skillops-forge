@@ -1,12 +1,14 @@
 # SkillOps Forge
 
-> **Static security & risk auditor for AI Agent skill packs.**
+**English** · [中文](README_CN.md)
+
+> **Static lint + risk-hint auditor for AI Agent skill packs.**
 > Offline CLI for `SKILL.md`, `CLAUDE.md`, and `.cursor/rules/*.mdc` —
 > 19 plaintext-pattern security rules + 27 audit rules, zero LLM,
 > zero `subprocess`.
 
-[![CI](https://img.shields.io/badge/CI-pending-lightgrey)]()
-[![PyPI](https://img.shields.io/badge/PyPI-skillops--forge-blue)]()
+[![CI](https://github.com/junjunup/skillops-forge/actions/workflows/ci.yml/badge.svg)](https://github.com/junjunup/skillops-forge/actions/workflows/ci.yml)
+[![SkillOps self-scan](https://github.com/junjunup/skillops-forge/actions/workflows/skillops.yml/badge.svg)](https://github.com/junjunup/skillops-forge/actions/workflows/skillops.yml)
 [![Coverage](https://img.shields.io/badge/coverage-91%25-brightgreen)]()
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-0.2.1-informational)]()
@@ -98,8 +100,8 @@ list each new defense + each known limitation in `CHANGELOG.md`.
 pip install -e ".[dev]"
 
 # verify install
-skillops --help          # 3 commands
-skillops version         # skillops-forge 0.1.3
+skillops --help          # 5 commands: scan / init-ci / version / rules / rule
+skillops version         # skillops-forge 0.2.1
 
 # scan a skill (or a whole skill repo)
 skillops scan ./my-skill --report all
@@ -219,7 +221,9 @@ Running SkillOps Forge against 37 skills installed on a developer machine
 | `humanizer` | AUD-000 (CRITICAL) | Multi-line YAML description without quoting (parser degrades gracefully instead of crashing) |
 
 The full distribution: 2 critical · 1 high · 3 medium · 9 low · 22 info.
-See `docs/v0.1.2-improvements.md` for the rule-by-rule rationale.
+See `CHANGELOG.md` (entries `[0.1.2]`, `[0.1.4]`, `[0.2.0]`, `[0.2.1]`) for
+the rule-by-rule rationale and the prior-art credits to skilllint and
+skillcheck.
 
 ## Design red lines
 
@@ -248,11 +252,11 @@ skillops-forge/
 │   ├── rules/         # YAML data-driven SEC rules
 │   ├── templates/     # Jinja2 (HTML/MD reports + GH Actions yaml)
 │   └── ci/            # init-ci generator
-├── tests/             # 147 tests, 92 % coverage (scanner ≥95 %)
-├── docs/              # architecture, rules, schema, qa-report
+├── tests/             # 206 tests, 91% line coverage (scanner ≥95%)
+├── docs/              # architecture, rules, JSON schema, mermaid diagrams
 └── pyproject.toml
 ```
 
 ## License
 
-[MIT](LICENSE) · See [README_CN.md](README_CN.md) for 中文版.
+[MIT](LICENSE) · 中文版见 [README_CN.md](README_CN.md).

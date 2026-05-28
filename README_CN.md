@@ -1,11 +1,13 @@
 # SkillOps Forge（中文版）
 
+[English](README.md) · **中文**
+
 > **AI Agent Skill 的静态 lint + 风险提示工具。**
 > 面向 `SKILL.md`、`CLAUDE.md` 和 `.cursor/rules/*.mdc` 的离线 CLI ——
 > 19 条明文模式安全规则 + 27 条审计规则，零 LLM、零 `subprocess`。
 
-[![CI](https://img.shields.io/badge/CI-pending-lightgrey)]()
-[![PyPI](https://img.shields.io/badge/PyPI-skillops--forge-blue)]()
+[![CI](https://github.com/junjunup/skillops-forge/actions/workflows/ci.yml/badge.svg)](https://github.com/junjunup/skillops-forge/actions/workflows/ci.yml)
+[![SkillOps self-scan](https://github.com/junjunup/skillops-forge/actions/workflows/skillops.yml/badge.svg)](https://github.com/junjunup/skillops-forge/actions/workflows/skillops.yml)
 [![Coverage](https://img.shields.io/badge/coverage-91%25-brightgreen)]()
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-0.2.1-informational)]()
@@ -209,7 +211,8 @@ skillops init-ci --github-actions
 | `humanizer` | AUD-000 (CRITICAL) | 多行 YAML description 未加引号（解析器优雅降级而非崩溃） |
 
 完整分布：2 critical · 1 high · 3 medium · 9 low · 22 info。
-逐条规则的设计动机见 `docs/v0.1.2-improvements.md`。
+逐条规则的设计动机与对 skilllint / skillcheck 的致谢，见 `CHANGELOG.md` 的
+`[0.1.2]` / `[0.1.4]` / `[0.2.0]` / `[0.2.1]` 段。
 
 ## 设计红线
 
@@ -236,8 +239,8 @@ skillops-forge/
 │   ├── rules/         # 数据驱动的 YAML SEC 规则
 │   ├── templates/     # Jinja2（HTML/MD 报告 + GH Actions yml）
 │   └── ci/            # init-ci 生成器
-├── tests/             # 147 tests, 92% 覆盖率（scanner ≥95%）
-├── docs/              # architecture, rules, schema, qa-report
+├── tests/             # 206 测试，91% 行覆盖率（scanner ≥95%）
+├── docs/              # 架构 / 规则 / JSON schema / mermaid 图
 └── pyproject.toml
 ```
 
