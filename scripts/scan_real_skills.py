@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import json
 import os
-import subprocess  # noqa: S404 — calling our own bundled CLI, not user input
+import subprocess
 import sys
 from pathlib import Path
 
@@ -68,42 +68,48 @@ for skill_dir in sorted(SKILLS_ROOT.iterdir()):
     )
     json_path = out_dir / "skillops-result.json"
     if proc.returncode == 3 or not json_path.exists():
-        results.append({
-            "skill": name,
-            "exit": proc.returncode,
-            "score": None,
-            "risk": "PARSE_ERROR",
-            "passed": False,
-            "audit": None,
-            "security": None,
-            "error": (proc.stderr or proc.stdout).strip().splitlines()[-1][:200] if (proc.stderr or proc.stdout) else "unknown",
-        })
+        results.append(
+            {
+                "skill": name,
+                "exit": proc.returncode,
+                "score": None,
+                "risk": "PARSE_ERROR",
+                "passed": False,
+                "audit": None,
+                "security": None,
+                "error": (proc.stderr or proc.stdout).strip().splitlines()[-1][:200]
+                if (proc.stderr or proc.stdout)
+                else "unknown",
+            }
+        )
         continue
     data = json.loads(json_path.read_text(encoding="utf-8"))
-    results.append({
-        "skill": name,
-        "exit": proc.returncode,
-        "score": data.get("score"),
-        "risk": data.get("overall_risk"),
-        "passed": data.get("is_passed"),
-        "audit": len(data.get("audit_findings", [])),
-        "security": len(data.get("security_findings", [])),
-        "error": None,
-    })
+    results.append(
+        {
+            "skill": name,
+            "exit": proc.returncode,
+            "score": data.get("score"),
+            "risk": data.get("overall_risk"),
+            "passed": data.get("is_passed"),
+            "audit": len(data.get("audit_findings", [])),
+            "security": len(data.get("security_findings", [])),
+            "error": None,
+        }
+    )
 
-# 摘要
+# Summary
 total = len(results)
 parse_err = sum(1 for r in results if r["risk"] == "PARSE_ERROR")
 passed = sum(1 for r in results if r["passed"])
 failed = sum(1 for r in results if r["passed"] is False and r["risk"] != "PARSE_ERROR")
 
-print(f"\n{'='*78}")
-print(f"扫描真实 skills 仓库：{SKILLS_ROOT}")
-print(f"{'='*78}")
-print(f"共扫描：{total}  | 通过：{passed}  | 不通过：{failed}  | parse 失败：{parse_err}")
-print(f"{'='*78}\n")
+print(f"\n{'=' * 78}")
+print(f"Scanning real skills under: {SKILLS_ROOT}")
+print(f"{'=' * 78}")
+print(f"total: {total}  pass: {passed}  fail: {failed}  parse_error: {parse_err}")
+print(f"{'=' * 78}\n")
 
-# 按 risk 分组打印
+# Sort by risk severity descending, then by score ascending.
 risk_order = {"CRITICAL": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3, "INFO": 4, "PARSE_ERROR": 5, None: 6}
 results.sort(key=lambda r: (risk_order.get(r["risk"], 9), -(r["score"] or 0)))
 
@@ -117,9 +123,8 @@ for r in results:
     sec = r["security"] if r["security"] is not None else "-"
     print(f"{r['skill'][:44]:<45} {score!s:>6} {risk:>10} {passed_s:>5} {aud!s:>4} {sec!s:>4}")
     if r["error"]:
-        print(f"  └─ {r['error'][:100]}")
+        print(f"  -> {r['error'][:100]}")
 
-# 保存 summary
 summary_path = OUT_ROOT / "summary.json"
 summary_path.write_text(json.dumps(results, indent=2, ensure_ascii=False), encoding="utf-8")
-print(f"\n汇总保存到：{summary_path}")
+print(f"\nSummary saved to: {summary_path}")
